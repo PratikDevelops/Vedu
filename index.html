@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Vedu ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating Hearts */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            animation: floatUp linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            from { transform: translateY(100vh) scale(0.5); opacity: 1; }
+            to { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        .gif-area img {
+            width: 150px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #ff4757;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; 
+            height: 60px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        #yesBtn {
+            background: #ff4757;
+            color: white;
+            z-index: 20; 
+        }
+
+        #noBtn {
+            background: white;
+            color: #ff4757;
+            border: 2px solid #ff4757;
+            position: relative; 
+            z-index: 10;
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+    <div id="hearts-bg"></div>
+
+    <div class="container" id="mainCard">
+        <div class="gif-area" id="gifContainer">
+            <img src="https://media.tenor.com/kzG6yM5w6zEAAAAi/peach-goma-peach-and-goma.gif" alt="Cute Bear">
+        </div>
+
+        <h1 id="questionText">Vedu, will you be my Valentine? 🌹</h1>
+
+        <div class="btn-container">
+            <button id="yesBtn" onclick="acceptLove()">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionText = document.getElementById('questionText');
+        const gifContainer = document.getElementById('gifContainer');
+
+        const rejectionTexts = [
+            "Are you sure?", 
+            "Really sure?", 
+            "Think again!", 
+            "Last chance!", 
+            "Surely not?", 
+            "You might regret this!", 
+            "Give it another thought!", 
+            "Are you absolutely certain?", 
+            "This could be a mistake!", 
+            "Have a heart!", 
+            "Don't be so cold!", 
+            "Change of heart?", 
+            "Wouldn't you reconsider?", 
+            "Is that your final answer?", 
+            "You're breaking my heart ;(", 
+            "I'm gonna cry...",
+            "Please? 🥺",
+            "Pretty please? 🥺",
+            "PLEASE POOKIE",
+            "Don't do this to me",
+            "I'll be very sad",
+            "I'll be very very sad",
+            "I'll be very very very sad",
+            "Ok fine, I will stop asking...",
+            "Just kidding, say YES",
+            "I'll give you cookies 🍪",
+            "I'll give you flowers 💐",
+            "Do you hate me? 😭",
+            "Why are you running?",
+            "Just click Yes already!",
+            "Stop playing hard to get!"
+        ];
+
+        let clickCount = 0;
+
+        function moveNoButton() {
+            clickCount++;
+            
+            const textIndex = Math.min(clickCount, rejectionTexts.length - 1);
+            noBtn.innerText = rejectionTexts[textIndex];
+
+            const noBtnRect = noBtn.getBoundingClientRect();
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+
+            const maxX = window.innerWidth - noBtnRect.width - 20;
+            const maxY = window.innerHeight - noBtnRect.height - 20;
+
+            let newX, newY;
+            let isOverlapping = true;
+            let attempts = 0;
+
+            while (isOverlapping && attempts < 50) {
+                newX = Math.random() * maxX;
+                newY = Math.random() * maxY;
+
+                if (newX < 0) newX = 10;
+                if (newY < 0) newY = 10;
+
+                const noLeft = newX;
+                const noRight = newX + noBtnRect.width;
+                const noTop = newY;
+                const noBottom = newY + noBtnRect.height;
+
+                const yesLeft = yesBtnRect.left - 10;
+                const yesRight = yesBtnRect.right + 10;
+                const yesTop = yesBtnRect.top - 10;
+                const yesBottom = yesBtnRect.bottom + 10;
+
+                if (noRight < yesLeft || noLeft > yesRight || noBottom < yesTop || noTop > yesBottom) {
+                    isOverlapping = false;
+                }
+                attempts++;
+            }
+
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = `${newX}px`;
+            noBtn.style.top = `${newY}px`;
+        }
+
+        noBtn.addEventListener('mouseover', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveNoButton(); });
+        noBtn.addEventListener('click', moveNoButton);
+
+        function acceptLove() {
+            gifContainer.innerHTML = '<img src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" alt="Happy Bears">';
+            questionText.innerHTML = "Yay! I knew it! 💖";
+            document.querySelector('.btn-container').style.display = 'none';
+            startConfetti();
+        }
+
+        function createHearts() {
+            const container = document.getElementById('hearts-bg');
+            const heart = document.createElement('div');
+            heart.classList.add('bg-heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
+            heart.style.animationDuration = Math.random() * 3 + 3 + 's';
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+        setInterval(createHearts, 500);
+
+        function startConfetti() {
+            const canvas = document.getElementById("confetti-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            let particles = [];
+            const colors = ["#ff4757", "#2ed573", "#ffa502", "#1e90ff"];
+
+            for(let i=0; i<300; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speed: Math.random() * 5 + 2,
+                    wobble: Math.random() * Math.PI * 2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.speed;
+                    p.wobble += 0.05;
+                    p.x += Math.sin(p.wobble) * 2;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                    if(p.y > canvas.height) p.y = -10;
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
